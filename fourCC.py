@@ -282,7 +282,9 @@ class LabelTMPC(LabelBase):
 
 skip_labels = [ 
 	"TIMO", "HUES", "SCEN", "YAVG", "ISOE", "FACE", "SHUT", "WBAL", "WRGB", "UNIF", "FCNM", "MTRX", "ORIN", "ORIO",
-	"FWVS", "KBAT", "ATTD",	"GLPI",	"VFRH",	"BPOS",	"ATTR",	"SIMU",	"ESCS",	"SCPR",	"LNED",	"CYTS",	"CSEN" 
+	"FWVS", "KBAT", "ATTD",	"GLPI",	"VFRH",	"BPOS",	"ATTR",	"SIMU",	"ESCS",	"SCPR",	"LNED",	"CYTS",	"CSEN",
+  "WNDM", "MWET", "AALP",
+  "DISP" # From MAX360
 ]
 
 labels = {
@@ -325,30 +327,58 @@ labels = {
 		"ALLD" : LabelEmpty,
 		"ORIO" : Label_TypecString,
   
-        # not defined in document
-        "YAVG" : LabelEmpty,
+    # not defined in document
+    "YAVG" : LabelEmpty,
+
 		"SCEN" : LabelEmpty,
 		"HUES" : LabelEmpty,
 		"UNIF" : LabelEmpty,
 		"SROT" : LabelEmpty, ## not documented Sensor Readout Time
 		"MFGI" : LabelEmpty, ## hero6+ble
 		"acc1" : LabelEmpty, ## hero6+ble
-		"FWVS" : LabelEmpty, ## Karma Drone
-		"KBAT" : LabelEmpty, ## Karma Drone
-		"GPRI" : LabelGPRI, ## Karma Drone (GPS raw!)
-		"ATTD" : LabelEmpty, ## Karma Drone
-		"GLPI" : LabelEmpty, ## Karma Drone
-		"VFRH" : LabelEmpty, ## Karma Drone
-		"SYST" : LabelSYST, ## Karma Drone
-		"BPOS" : LabelEmpty, ## Karma Drone
-		"ATTR" : LabelEmpty, ## Karma Drone
-		"SIMU" : LabelEmpty, ## Karma Drone
-		"ESCS" : LabelEmpty, ## Karma Drone
-		"SCPR" : LabelEmpty, ## Karma Drone
-		"LNED" : LabelEmpty, ## Karma Drone
-		"CYTS" : LabelEmpty, ## Karma Drone
-		"CSEN" : LabelEmpty ## Karma Drone
-	
+    ## Karma Drone
+		"FWVS" : LabelEmpty,
+		"KBAT" : LabelEmpty,
+		"GPRI" : LabelGPRI, ## (GPS raw!)
+		"ATTD" : LabelEmpty,
+		"GLPI" : LabelEmpty,
+		"VFRH" : LabelEmpty,
+		"SYST" : LabelSYST,
+		"BPOS" : LabelEmpty,
+		"ATTR" : LabelEmpty,
+		"SIMU" : LabelEmpty,
+		"ESCS" : LabelEmpty,
+		"SCPR" : LabelEmpty,
+		"LNED" : LabelEmpty,
+		"CYTS" : LabelEmpty,
+		"CSEN" : LabelEmpty,
+
+    ## Here on copied from gpmf-parser README: https://github.com/gopro/gpmf-parser
+		"VPTS" : LabelEmpty, ## not documented ????
+
+    ## HERO7 Black (v1.8)
+    # "FACE" : LabelEmpty,	# Face boxes and smile confidence	at base frame rate 24/25/30	n/a	struct ID,x,y,w,h,unused[17],smile
+    # "FCNM" : LabelEmpty,	# removed	n/a	n/a	
+    # "YAVG" : LabelEmpty,	# Luma (Y) Average over the frame	8 - 10	n/a	range 0 (black) to 255 (white)
+    # "HUES" : LabelEmpty,	# Predominant hues over the frame	8 - 10	n/a	struct ubyte hue, ubyte weight, HSV_Hue = hue x 360/255
+    # "UNIF" : LabelEmpty,	# Image uniformity	8 - 10	range 0 to 1.0 where 1.0 is a solid color	
+    # "SCEN" : LabelEmpty,	# Scene classifier in probabilities	8 - 10	n/a	FourCC scenes: SNOW, URBAn, INDOor, WATR, VEGEtation, BEACh
+    "SROT" : LabelEmpty,	# Sensor Read Out Time	at base frame rate 24/25/30	n/a	this moves to a global value in HERO8
+
+    ## HERO8 Black (v1.2) Adds, Removes, Changes, Otherwise Supports All HERO7 metadata
+    "CORI" : LabelEmpty,	# Camera ORIentation	frame rate	n/a	Quaterions for the camera orientation since capture start
+    "IORI" : LabelEmpty,	# Image ORIentation	frame rate	n/a	Quaterions for the image orientation relative to the camera body
+    "GRAV" : LabelEmpty,	# GRAvity Vector	frame rate	n/a	Vector for the direction for gravitiy
+    # "WNDM" : LabelEmpty,	# Wind Processing	10Hz	n/a	marks whether wind processing is active
+    # "MWET" : LabelEmpty,	# Microphone is WET	10Hz	n/a	marks whether some of the microphones are wet
+    # "AALP" : LabelEmpty,	# Audio Levels	10Hz	dBFS	RMS and peak audio levels in dBFS
+
+    ## GoPro MAX (v1.3) Adds, Removes, Changes, Otherwise Supports All HERO7 metadata
+    "CORI" : LabelEmpty,	# Camera ORIentation	frame rate	n/a	Quaterions for the camera orientation since capture start
+    "IORI" : LabelEmpty,	# Image ORIentation	frame rate	n/a	Quaterions for the image orientation relative to the camera body
+    "GRAV" : LabelEmpty,	# GRAvity Vector	frame rate	n/a	Vector for the direction for gravity
+    "DISP" : LabelEmpty,	# Disparity track (360 modes)	frame rate	n/a	1-D depth map for the objects seen by the two lenses
+
 }
 
 def Manage(klvdata):

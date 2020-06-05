@@ -55,6 +55,10 @@ def BuildGPSPoints(data, skip=False):
     for d in data:
         if d.fourCC == 'SCAL':
             SCAL = d.data
+        elif d.fourCC == 'DISP':
+            print('Found disparity data!')
+        elif d.fourCC == 'STNM':
+            print(d.data)
         elif d.fourCC == 'GPSU':
             GPSU = d.data
         elif d.fourCC == 'GPSF':
@@ -122,6 +126,39 @@ def BuildGPSPoints(data, skip=False):
     print("Total points:      %5d" % total_points)
     print("--------------------------")
     return(points)
+
+
+def Build360Points(data, skip=False):
+    """
+    Data comes UNSCALED so we have to do: Data / Scale.
+    Do a finite state machine to process the labels.
+    GET
+     - SCAL     Scale value
+    """
+
+    points = []
+    SCAL = fourCC.XYZData(1.0, 1.0, 1.0)
+    GPSU = None    
+    SYST = fourCC.SYSTData(0, 0)
+
+    stats = { 
+        'ok': 0,
+        'badfix': 0,
+        'badfixskip': 0,
+        'empty' : 0
+    }
+
+    GPSFIX = 0 # no lock.
+    for d in data:
+        if d.fourCC == 'SCAL':
+            SCAL = d.data
+        elif d.fourCC == 'GPSU':
+            GPSU = d.data
+        elif d.fourCC == 'GPSF':
+            if d.data != GPSFIX:
+                print("GPSFIX change to %s [%s]" % (d.data,fourCC.LabelGPSF.xlate[d.data]))
+            GPSFIX = d.data
+
 
 def parseArgs():
     parser = argparse.ArgumentParser()

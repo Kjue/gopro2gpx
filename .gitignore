@@ -1,0 +1,9 @@
+*.360
+
+# results
+*.gpx
+*.kml
+
+# builds
+__pycache__
+*.pyc
