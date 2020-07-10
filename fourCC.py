@@ -32,7 +32,8 @@ def map_type(type):
 	return(ctype)
 
 
-XYZData = collections.namedtuple('XYZData',"y x z")	
+XYZData = collections.namedtuple('XYZData',"y x z")
+XYZWData = collections.namedtuple('XYZWData',"y x z w")
 UNITData = collections.namedtuple("UNITData","lat lon alt speed speed3d")
 KARMAUNIT10Data = collections.namedtuple("KARMAUNIT10Data","A  Ah J degC V1 V2 V3 V4 s p1")
 KARMAUNIT15Data = collections.namedtuple("KARMAUNIT15Data","A  Ah J degC V1 V2 V3 V4 s p1 e1 e2 e3 e4 p2")
@@ -125,12 +126,27 @@ class LabelXYZData(LabelBase):
 
 	def Build(self, klvdata):
 		if klvdata.size != 6 and klvdata.size != 12:
-			raise Exception("Invalid length for ACCL packet")
+			raise Exception("Invalid length for XYZ packet")
 		
 		# we need to process the SCAL value to measure properly the DATA
 		stype = map_type(klvdata.type)
 		s = struct.Struct('>' + stype*3)
 		data = XYZData._make(s.unpack_from(klvdata.rawdata))
+		return(data)
+
+class LabelXYZWData(LabelBase):
+	def __init__(self):
+		LabelBase.__init__(self)
+
+	def Build(self, klvdata):
+		if klvdata.size != 8 and klvdata.size != 16:
+			raise Exception("Invalid length for XYZW packet")
+		
+		# we need to process the SCAL value to measure properly the DATA
+		stype = map_type(klvdata.type)
+		s = struct.Struct('>' + stype*4)
+		# data = XYZWData._make(s.unpack_from(klvdata.rawdata))
+		data = XYZWData._make( map(lambda x: float((0 if x == 0 else (x+1 if x > 0 else x)) + 2**15) / 2**15 - 1.0, s.unpack_from(klvdata.rawdata)) )
 		return(data)
 
 class LabelACCL(LabelXYZData):
@@ -150,6 +166,24 @@ class LabelGYRO(LabelXYZData):
 
 	def __init__(self):
 		LabelXYZData.__init__(self)
+
+class LabelCORI(LabelXYZWData):
+	"""
+	4-axis camera orientation at FPS Hz, quaternions
+	Data order unknown
+	"""
+
+	def __init__(self):
+		LabelXYZWData.__init__(self)
+
+class LabelIORI(LabelXYZWData):
+	"""
+	4-axis image orientation at FPS Hz, quaternions
+	Data order unknown
+	"""
+
+	def __init__(self):
+		LabelXYZWData.__init__(self)
 
 class LabelGPSF(LabelBase):
 	"""
@@ -367,16 +401,16 @@ labels = {
     "SROT" : LabelEmpty,	# Sensor Read Out Time	at base frame rate 24/25/30	n/a	this moves to a global value in HERO8
 
     ## HERO8 Black (v1.2) Adds, Removes, Changes, Otherwise Supports All HERO7 metadata
-    "CORI" : LabelEmpty,	# Camera ORIentation	frame rate	n/a	Quaterions for the camera orientation since capture start
-    "IORI" : LabelEmpty,	# Image ORIentation	frame rate	n/a	Quaterions for the image orientation relative to the camera body
-    "GRAV" : LabelEmpty,	# GRAvity Vector	frame rate	n/a	Vector for the direction for gravitiy
+    # "CORI" : LabelCORI,	# Camera ORIentation	frame rate	n/a	Quaterions for the camera orientation since capture start
+    # "IORI" : LabelIORI,	# Image ORIentation	frame rate	n/a	Quaterions for the image orientation relative to the camera body
+    # "GRAV" : LabelEmpty,	# GRAvity Vector	frame rate	n/a	Vector for the direction for gravitiy
     # "WNDM" : LabelEmpty,	# Wind Processing	10Hz	n/a	marks whether wind processing is active
     # "MWET" : LabelEmpty,	# Microphone is WET	10Hz	n/a	marks whether some of the microphones are wet
     # "AALP" : LabelEmpty,	# Audio Levels	10Hz	dBFS	RMS and peak audio levels in dBFS
 
     ## GoPro MAX (v1.3) Adds, Removes, Changes, Otherwise Supports All HERO7 metadata
-    "CORI" : LabelEmpty,	# Camera ORIentation	frame rate	n/a	Quaterions for the camera orientation since capture start
-    "IORI" : LabelEmpty,	# Image ORIentation	frame rate	n/a	Quaterions for the image orientation relative to the camera body
+    "CORI" : LabelCORI,	# Camera ORIentation	frame rate	n/a	Quaterions for the camera orientation since capture start
+    "IORI" : LabelIORI,	# Image ORIentation	frame rate	n/a	Quaterions for the image orientation relative to the camera body
     "GRAV" : LabelEmpty,	# GRAvity Vector	frame rate	n/a	Vector for the direction for gravity
     "DISP" : LabelEmpty,	# Disparity track (360 modes)	frame rate	n/a	1-D depth map for the objects seen by the two lenses
 
