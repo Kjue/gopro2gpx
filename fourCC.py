@@ -298,6 +298,7 @@ labels = {
 		"GPSF" : LabelGPSF,
 		"GPSP" : LabelGPSP,
 		"GPSU" : LabelGPSU,
+		"GPSA" : LabelEmpty,
 		"GYRO" : LabelGYRO,
 		"HD5." : LabelEmpty,
 		"SCAL" : LabelSCAL,
