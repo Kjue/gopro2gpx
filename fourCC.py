@@ -101,6 +101,14 @@ class LabelSIUN(Label_TypecString):
 	def __init__(self):
 		Label_TypecString.__init__(self)
 
+class LabelVPTS(LabelBase):
+	def __init__(self):
+		LabelBase.__init__(self)
+	
+	def Build(self, klvdata):
+		if klvdata.repeat == 1:
+			return LabelBase.Build(self,klvdata)
+
 class LabelSCAL(LabelBase):
 	def __init__(self):
 		LabelBase.__init__(self)
@@ -145,8 +153,7 @@ class LabelXYZWData(LabelBase):
 		# we need to process the SCAL value to measure properly the DATA
 		stype = map_type(klvdata.type)
 		s = struct.Struct('>' + stype*4)
-		# data = XYZWData._make(s.unpack_from(klvdata.rawdata))
-		data = XYZWData._make( map(lambda x: float((0 if x == 0 else (x+1 if x > 0 else x)) + 2**15) / 2**15 - 1.0, s.unpack_from(klvdata.rawdata)) )
+		data = XYZWData._make(s.unpack_from(klvdata.rawdata))
 		return(data)
 
 class LabelACCL(LabelXYZData):
@@ -162,6 +169,15 @@ class LabelGYRO(LabelXYZData):
 	"""
 	3-axis gyroscope 3200Hz, rad/s
 	Data order -Y,X,Z
+	"""
+
+	def __init__(self):
+		LabelXYZData.__init__(self)
+
+class LabelGRAV(LabelXYZData):
+	"""
+	3-axis gravity vector
+	Data order -Y,X,Z ???
 	"""
 
 	def __init__(self):
@@ -389,7 +405,7 @@ labels = {
 		"CSEN" : LabelEmpty,
 
     ## Here on copied from gpmf-parser README: https://github.com/gopro/gpmf-parser
-		"VPTS" : LabelEmpty, ## not documented ????
+		"VPTS" : LabelVPTS, ## not documented ????
 
     ## HERO7 Black (v1.8)
     # "FACE" : LabelEmpty,	# Face boxes and smile confidence	at base frame rate 24/25/30	n/a	struct ID,x,y,w,h,unused[17],smile
@@ -411,7 +427,7 @@ labels = {
     ## GoPro MAX (v1.3) Adds, Removes, Changes, Otherwise Supports All HERO7 metadata
     "CORI" : LabelCORI,	# Camera ORIentation	frame rate	n/a	Quaterions for the camera orientation since capture start
     "IORI" : LabelIORI,	# Image ORIentation	frame rate	n/a	Quaterions for the image orientation relative to the camera body
-    "GRAV" : LabelEmpty,	# GRAvity Vector	frame rate	n/a	Vector for the direction for gravity
+    "GRAV" : LabelGRAV,	# GRAvity Vector	frame rate	n/a	Vector for the direction for gravity
     "DISP" : LabelEmpty,	# Disparity track (360 modes)	frame rate	n/a	1-D depth map for the objects seen by the two lenses
 
 }

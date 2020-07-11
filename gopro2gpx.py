@@ -28,6 +28,8 @@ import sys
 
 import gpshelper
 
+import json
+
 def BuildGPSPoints(data, skip=False):
     """
     Data comes UNSCALED so we have to do: Data / Scale.
@@ -55,8 +57,6 @@ def BuildGPSPoints(data, skip=False):
     for d in data:
         if d.fourCC == 'SCAL':
             SCAL = d.data
-        elif d.fourCC == 'DISP':
-            print('Found disparity data!')
         elif d.fourCC == 'STNM':
             print(d.data)
         elif d.fourCC == 'GPSU':
@@ -136,10 +136,20 @@ def Build360Points(data, skip=False):
      - SCAL     Scale value
     """
 
-    points = []
+    streams = { 'streams': {
+        'CORI': [],
+        'IORI': [],
+        'GRAV': []
+    }}
     SCAL = fourCC.XYZData(1.0, 1.0, 1.0)
+    TSMP = None
     GPSU = None    
+    VPTS = None
+    VPTS_init = None
+    cts = None
     SYST = fourCC.SYSTData(0, 0)
+
+    DATAS = ['CORI', 'IORI', 'GRAV']
 
     stats = { 
         'ok': 0,
@@ -152,13 +162,20 @@ def Build360Points(data, skip=False):
     for d in data:
         if d.fourCC == 'SCAL':
             SCAL = d.data
-        elif d.fourCC == 'GPSU':
-            GPSU = d.data
-        elif d.fourCC == 'GPSF':
-            if d.data != GPSFIX:
-                print("GPSFIX change to %s [%s]" % (d.data,fourCC.LabelGPSF.xlate[d.data]))
-            GPSFIX = d.data
+        elif d.fourCC == 'TSMP':
+            TSMP = d.data
+        elif d.fourCC == 'VPTS':
+            if VPTS == None:
+                VPTS_init = d.data
+            VPTS = d.data
+            cts = int((VPTS - VPTS_init) / 1000)
+        elif d.fourCC in DATAS:
+            item = dict(map(lambda val: (val[0], float(val[1])/SCAL), zip(['x', 'y', 'z', 'w'], d.data)))
+            item['cts'] = cts
+            item['VPTS'] = VPTS
+            streams['streams'][d.fourCC].append(item)
 
+    return streams
 
 def parseArgs():
     parser = argparse.ArgumentParser()
@@ -184,21 +201,13 @@ if __name__ == "__main__":
 
     # build some funky tracks from camera GPS
 
-    print(args.skip)
-    points = BuildGPSPoints(data, skip=args.skip)
+    points = Build360Points(data, skip=args.skip)
 
     if len(points) == 0:
         print("Can't create file. No GPS info in %s. Exitting" % args.file)
         sys.exit(0)
 
-    kml = gpshelper.generate_KML(points)
-    fd = open("%s.kml" % args.outputfile , "w+")
-    fd.write(kml)
-    fd.close()
-
-    gpx = gpshelper.generate_GPX(points, trk_name="gopro7-track")
-    fd = open("%s.gpx" % args.outputfile , "w+")
-    fd.write(gpx)
+    fd = open("%s.json" % args.outputfile , "w+")
+    fd.write(json.dumps(points))
     fd.close()
    
-   # falla el 46 y el 48

@@ -100,8 +100,6 @@ class Parser:
                 klvlist.append(klv)
                 if self.verbose == 3:
                     print(klv)
-            elif klv.fourCC == 'DISP':
-                print(klv)
             offset += 8
             if klv.type != 0:
                 offset += klv.padded_length
