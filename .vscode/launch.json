@@ -11,8 +11,7 @@
       "program": "${workspaceFolder}/gopro2gpx.py",
       "console": "externalTerminal",
       "args": [
-        "-vvv",
-        "GS010003.360",
+        "GS010064.360",
         "max360"
       ]
     }

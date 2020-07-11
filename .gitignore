@@ -3,6 +3,7 @@
 # results
 *.gpx
 *.kml
+*.json
 
 # builds
 __pycache__
