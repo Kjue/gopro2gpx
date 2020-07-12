@@ -183,7 +183,6 @@ def parseArgs():
     parser.add_argument("-b", "--binary", help="read data from bin file", action="store_true")
     parser.add_argument("-s", "--skip", help="Skip bad points (GPSFIX=0)", action="store_true", default=False)
     parser.add_argument("file", help="Video file or binary metadata dump")
-    parser.add_argument("outputfile", help="output file. builds KML and GPX")
     args = parser.parse_args()
 
     return args        
@@ -204,10 +203,10 @@ if __name__ == "__main__":
     points = Build360Points(data, skip=args.skip)
 
     if len(points) == 0:
-        print("Can't create file. No GPS info in %s. Exitting" % args.file)
+        print("Can't create file. No camera info in %s. Exitting" % config.file)
         sys.exit(0)
 
-    fd = open("%s.json" % args.outputfile , "w+")
+    fd = open("%s.json" % config.outputfile , "w+")
     fd.write(json.dumps(points))
     fd.close()
    

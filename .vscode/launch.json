@@ -9,10 +9,9 @@
       "type": "python",
       "request": "launch",
       "program": "${workspaceFolder}/gopro2gpx.py",
-      "console": "externalTerminal",
+      "console": "integratedTerminal",
       "args": [
-        "GS010064.360",
-        "max360"
+        "GS010007.360"
       ]
     }
   ]

@@ -28,12 +28,12 @@ def setup_environment(args):
     else:
         config = Config('/usr/local/bin/ffmpeg', '/usr/local/bin/ffprobe')
 
-
+    file_name, ext = os.path.splitext(args.file)
 
     # configure arguments
     config.verbose = args.verbose
     config.file = args.file
-    config.outputfile = args.outputfile
+    config.outputfile = file_name
     return config
 
     

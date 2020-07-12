@@ -338,6 +338,7 @@ skip_labels = [
 ]
 
 labels = {
+		"VPTS" : LabelVPTS, ## Video picosecond timestamp
 		"ACCL" : LabelACCL,
 		"DEVC" : LabelEmpty,
 		"DVID" : LabelDVID,
@@ -405,7 +406,6 @@ labels = {
 		"CSEN" : LabelEmpty,
 
     ## Here on copied from gpmf-parser README: https://github.com/gopro/gpmf-parser
-		"VPTS" : LabelVPTS, ## not documented ????
 
     ## HERO7 Black (v1.8)
     # "FACE" : LabelEmpty,	# Face boxes and smile confidence	at base frame rate 24/25/30	n/a	struct ID,x,y,w,h,unused[17],smile
