@@ -16,6 +16,7 @@ import os
 import array
 import sys
 import struct
+import re
 
 from ffmpegtools import FFMpegTools
 from klvdata import KLVData
@@ -107,6 +108,15 @@ class Parser:
             
         return(klvlist)
     
+    def readCameraSerial(self):
+        fd = open(self.file, 'rb')
+        id_data = fd.read(200)
+        fd.close()
 
+        ids = re.findall(r'(\d+).GoPro', id_data.decode('utf-8', errors='replace'))
+        CASN = (ids[0] if ids else None)
+        if self.verbose == 2:
+            print("GoPro SN: %s" % CASN)
+        return CASN
 
             

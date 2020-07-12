@@ -128,7 +128,7 @@ def BuildGPSPoints(data, skip=False):
     return(points)
 
 
-def Build360Points(data, skip=False):
+def Build360Points(data, skip=False, casn=''):
     """
     Data comes UNSCALED so we have to do: Data / Scale.
     Do a finite state machine to process the labels.
@@ -136,20 +136,23 @@ def Build360Points(data, skip=False):
      - SCAL     Scale value
     """
 
-    streams = { 'streams': {
-        'CORI': [],
-        'IORI': [],
-        'GRAV': []
-    }}
+    CASN = casn
     SCAL = fourCC.XYZData(1.0, 1.0, 1.0)
+    DVID = None
     TSMP = None
-    GPSU = None    
+    GPSU = None
     VPTS = None
     VPTS_init = None
-    cts = None
+    CTS = 0
     SYST = fourCC.SYSTData(0, 0)
 
     DATAS = ['CORI', 'IORI', 'GRAV']
+    samples = []
+    streams = { 'streams': {
+        'id': CASN,
+        'datas': DATAS,
+        'samples': samples
+    }}
 
     stats = { 
         'ok': 0,
@@ -168,12 +171,16 @@ def Build360Points(data, skip=False):
             if VPTS == None:
                 VPTS_init = d.data
             VPTS = d.data
-            cts = int((VPTS - VPTS_init) / 1000)
+            CTS = int((VPTS - VPTS_init) / 1000)
         elif d.fourCC in DATAS:
-            item = dict(map(lambda val: (val[0], float(val[1])/SCAL), zip(['x', 'y', 'z', 'w'], d.data)))
-            item['cts'] = cts
-            item['VPTS'] = VPTS
-            streams['streams'][d.fourCC].append(item)
+            sample = { 'CTS': CTS, 'VPTS': VPTS, 'SCAL': SCAL } if len(samples) == 0 else samples[-1]
+            if sample['CTS'] < CTS:
+                sample = { 'CTS': CTS, 'VPTS': VPTS, 'SCAL': SCAL }
+
+            sample[d.fourCC] = dict(zip(['x', 'y', 'z', 'w'], d.data))
+            
+            if len(samples) == 0 or samples[-1]['CTS'] < CTS:
+                samples.append(sample)
 
     return streams
 
@@ -198,9 +205,9 @@ if __name__ == "__main__":
     else:
         data = parser.readFromBinary()
 
-    # build some funky tracks from camera GPS
+    casn = parser.readCameraSerial()
 
-    points = Build360Points(data, skip=args.skip)
+    points = Build360Points(data, skip=args.skip, casn=casn)
 
     if len(points) == 0:
         print("Can't create file. No camera info in %s. Exitting" % config.file)
@@ -209,4 +216,3 @@ if __name__ == "__main__":
     fd = open("%s.json" % config.outputfile , "w+")
     fd.write(json.dumps(points))
     fd.close()
-   
