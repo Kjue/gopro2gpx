@@ -33,7 +33,8 @@ class Parser:
         self.file = config.file
         self.outputfile = config.outputfile
 
-    
+        self.date = self.ffmtools.getDate(self.file)
+
     def readFromMP4(self):
         """read data the metadata track from video. Requires FFMPEG wrapper.
            -vv creates a dump file with the  binary data called dump_track.bin

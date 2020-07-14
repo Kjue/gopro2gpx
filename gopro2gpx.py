@@ -128,7 +128,7 @@ def BuildGPSPoints(data, skip=False):
     return(points)
 
 
-def Build360Points(data, skip=False, casn=''):
+def Build360Points(data, skip=False):
     """
     Data comes UNSCALED so we have to do: Data / Scale.
     Do a finite state machine to process the labels.
@@ -136,7 +136,6 @@ def Build360Points(data, skip=False, casn=''):
      - SCAL     Scale value
     """
 
-    CASN = casn
     SCAL = fourCC.XYZData(1.0, 1.0, 1.0)
     DVID = None
     TSMP = None
@@ -149,7 +148,6 @@ def Build360Points(data, skip=False, casn=''):
     DATAS = ['CORI', 'IORI', 'GRAV']
     samples = []
     streams = { 'streams': {
-        'id': CASN,
         'datas': DATAS,
         'samples': samples
     }}
@@ -205,14 +203,17 @@ if __name__ == "__main__":
     else:
         data = parser.readFromBinary()
 
-    casn = parser.readCameraSerial()
+    CASN = parser.readCameraSerial()
 
-    points = Build360Points(data, skip=args.skip, casn=casn)
+    streams = Build360Points(data, skip=args.skip)
+    streams['camera_id'] = CASN
+    streams['source_id'] = config.outputfile
+    streams['date'] = parser.date
 
-    if len(points) == 0:
+    if len(streams) == 0:
         print("Can't create file. No camera info in %s. Exitting" % config.file)
         sys.exit(0)
 
     fd = open("%s.json" % config.outputfile , "w+")
-    fd.write(json.dumps(points))
+    fd.write(json.dumps(streams))
     fd.close()
