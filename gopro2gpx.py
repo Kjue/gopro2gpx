@@ -206,8 +206,8 @@ if __name__ == "__main__":
     CASN = parser.readCameraSerial()
 
     streams = Build360Points(data, skip=args.skip)
-    streams['camera_id'] = CASN
-    streams['source_id'] = config.outputfile
+    streams['camera'] = CASN
+    streams['source'] = config.outputfile
     streams['date'] = parser.date
 
     if len(streams) == 0:
