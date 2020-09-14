@@ -12,7 +12,6 @@ import subprocess
 import re
 import struct
 import os
-import math
 import platform
 import argparse
 from collections import namedtuple
@@ -27,7 +26,10 @@ import fourCC
 import time
 import sys
 
+import gpshelper
+
 import json
+
 
 def Build360Points(data, skip=False):
     """
@@ -38,13 +40,9 @@ def Build360Points(data, skip=False):
     """
 
     SCAL = fourCC.XYZData(1.0, 1.0, 1.0)
-    DVID = None
-    TSMP = None
-    GPSU = None
     VPTS = None
     VPTS_init = None
     CTS = 0
-    SYST = fourCC.SYSTData(0, 0)
 
     DATAS = ['CORI', 'IORI', 'GRAV']
     samples = []
@@ -53,14 +51,6 @@ def Build360Points(data, skip=False):
         'samples': samples
     }}
 
-    stats = { 
-        'ok': 0,
-        'badfix': 0,
-        'badfixskip': 0,
-        'empty' : 0
-    }
-
-    GPSFIX = 0 # no lock.
     for d in data:
         if d.fourCC == 'SCAL':
             SCAL = d.data
@@ -76,12 +66,12 @@ def Build360Points(data, skip=False):
             if sample['CTS'] < CTS:
                 sample = { 'CTS': CTS, 'VPTS': VPTS, 'SCAL': SCAL }
 
-            sample[d.fourCC] = dict(zip(['w', 'x', 'z', 'y'], d.data))
+            sample[d.fourCC] = d.data._asdict()
             
             if len(samples) == 0 or samples[-1]['CTS'] < CTS:
                 samples.append(sample)
 
-    streams['streams']['FPS'] = round(1 / ((VPTS - VPTS_init) / 1000000 / len(samples)), 3)
+    streams['streams']['FPS'] = round(1 / ((VPTS - VPTS_init) / 1000 / 1000 / len(samples)), 1)
     return streams
 
 def parseArgs():
@@ -92,12 +82,31 @@ def parseArgs():
     parser.add_argument("file", help="Video file or binary metadata dump")
     args = parser.parse_args()
 
-    return args        
+    return args
+
+def parse360ToJson(filename, binary=False, verbose=None):
+    cfg = config.setup_environment(filename=filename)
+    parser = gpmf.Parser(cfg)
+    data = parser.readFromMP4()
+    CASN = parser.readCameraSerial()
+
+    streams = Build360Points(data)
+    streams['camera'] = CASN
+    streams['source'] = cfg.outputfile
+    streams['date'] = parser.date
+
+    if len(streams) == 0:
+        print("Can't create file. No camera info in %s. Exitting" % cfg.file)
+        sys.exit(0)
+
+    fd = open("%s.json" % cfg.outputfile , "w+")
+    fd.write(json.dumps(streams))
+    fd.close()
 
 if __name__ == "__main__":
 
     args = parseArgs()
-    config = config.setup_environment(args)
+    config = config.setup_environment(args.file, args.binary, args.verbose)
     parser = gpmf.Parser(config)
 
     if not args.binary:

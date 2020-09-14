@@ -15,7 +15,7 @@ class Config:
         self.ffmpeg_cmd = ffmpeg
         self.ffprobe_cmd = ffprobe
 
-def setup_environment(args):
+def setup_environment(filename="", binary=False, verbose=False):
     """
     The output of platform.system() is as follows:
     Linux: Linux
@@ -28,12 +28,14 @@ def setup_environment(args):
     else:
         config = Config('/usr/local/bin/ffmpeg', '/usr/local/bin/ffprobe')
 
-    file_name, ext = os.path.splitext(args.file)
+    if (len(filename)):
+        file_name, ext = os.path.splitext(filename)
 
-    # configure arguments
-    config.verbose = args.verbose
-    config.file = args.file
-    config.outputfile = file_name
+        # configure arguments
+        config.verbose = verbose
+        config.file = filename
+        config.outputfile = file_name
+
     return config
 
     

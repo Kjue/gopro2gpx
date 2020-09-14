@@ -5,13 +5,13 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Python: gopro2gpx",
+      "name": "Python: gopro2json",
       "type": "python",
       "request": "launch",
-      "program": "${workspaceFolder}/gopro2gpx.py",
+      "program": "${workspaceFolder}/gopro2json/gopro2json.py",
       "console": "integratedTerminal",
       "args": [
-        "GS010007.360"
+        "GS010144.360"
       ]
     }
   ]
