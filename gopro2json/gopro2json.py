@@ -20,13 +20,11 @@ import sys
 import time
 from datetime import datetime
 
-import config
-import gpmf
-import fourCC
+from . import config
+from . import gpmf
+from . import fourCC
 import time
 import sys
-
-import gpshelper
 
 import json
 
@@ -74,17 +72,7 @@ def Build360Points(data, skip=False):
     streams['streams']['FPS'] = round(1 / ((VPTS - VPTS_init) / 1000 / 1000 / len(samples)), 1)
     return streams
 
-def parseArgs():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-v", "--verbose", help="increase output verbosity", action="count")
-    parser.add_argument("-b", "--binary", help="read data from bin file", action="store_true")
-    parser.add_argument("-s", "--skip", help="Skip bad points (GPSFIX=0)", action="store_true", default=False)
-    parser.add_argument("file", help="Video file or binary metadata dump")
-    args = parser.parse_args()
-
-    return args
-
-def parse360ToJson(filename, binary=False, verbose=None):
+def Parse360ToJson(filename, binary=False, verbose=None):
     cfg = config.setup_environment(filename=filename)
     parser = gpmf.Parser(cfg)
     data = parser.readFromMP4()
@@ -102,6 +90,16 @@ def parse360ToJson(filename, binary=False, verbose=None):
     fd = open("%s.json" % cfg.outputfile , "w+")
     fd.write(json.dumps(streams))
     fd.close()
+
+def parseArgs():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-v", "--verbose", help="increase output verbosity", action="count")
+    parser.add_argument("-b", "--binary", help="read data from bin file", action="store_true")
+    parser.add_argument("-s", "--skip", help="Skip bad points (GPSFIX=0)", action="store_true", default=False)
+    parser.add_argument("file", help="Video file or binary metadata dump")
+    args = parser.parse_args()
+
+    return args
 
 if __name__ == "__main__":
 

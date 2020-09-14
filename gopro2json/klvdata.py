@@ -7,7 +7,7 @@
 #
 
 import struct
-import fourCC
+from . import fourCC
 
 class KLVData:
     """

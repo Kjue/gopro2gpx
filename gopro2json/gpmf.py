@@ -18,8 +18,8 @@ import sys
 import struct
 import re
 
-from ffmpegtools import FFMpegTools
-from klvdata import KLVData
+from . ffmpegtools import FFMpegTools
+from . klvdata import KLVData
 
        
 
