@@ -33,7 +33,7 @@ def map_type(type):
 
 
 XYZData = collections.namedtuple('XYZData',"y x z")
-XYZWData = collections.namedtuple('XYZWData',"y x z w")
+WXZYData = collections.namedtuple('WXZYData',"w x z y")
 UNITData = collections.namedtuple("UNITData","lat lon alt speed speed3d")
 KARMAUNIT10Data = collections.namedtuple("KARMAUNIT10Data","A  Ah J degC V1 V2 V3 V4 s p1")
 KARMAUNIT15Data = collections.namedtuple("KARMAUNIT15Data","A  Ah J degC V1 V2 V3 V4 s p1 e1 e2 e3 e4 p2")
@@ -70,6 +70,19 @@ class Label_TypecString(LabelBase):
 	def Build(self, klvdata):
 		return(klvdata.rawdata.decode('utf-8', errors='replace').strip('\0'))
 
+class Label_TypeFloat(LabelBase):
+	"c 1 X"
+	def __init__(self):
+		LabelBase.__init__(self)
+	
+	def Build(self, klvdata):
+		# if more than 1 item in repeat, return a list (GPS data)
+		stype = map_type(klvdata.type)
+		fmt = '>' + stype * klvdata.repeat
+		s = struct.Struct(fmt)
+		data, = s.unpack_from(klvdata.rawdata)
+		return(data)
+
 class Label_TypeUTimeStamp(LabelBase):
 	"c 1 X"
 	def __init__(self):
@@ -101,6 +114,17 @@ class LabelSIUN(Label_TypecString):
 	def __init__(self):
 		Label_TypecString.__init__(self)
 
+#
+# Floats
+#
+class LabelSHUT(Label_TypeFloat):
+	def __init__(self):
+		Label_TypeFloat.__init__(self)
+	
+class LabelSROT(Label_TypeFloat):
+	def __init__(self):
+		Label_TypeFloat.__init__(self)
+	
 class LabelVPTS(LabelBase):
 	def __init__(self):
 		LabelBase.__init__(self)
@@ -142,32 +166,36 @@ class LabelXYZData(LabelBase):
 		data = XYZData._make(s.unpack_from(klvdata.rawdata))
 		return(data)
 
-class LabelXYZWData(LabelBase):
+class LabelWXZYData(LabelBase):
 	def __init__(self):
 		LabelBase.__init__(self)
 
 	def Build(self, klvdata):
 		if klvdata.size != 8 and klvdata.size != 16:
-			raise Exception("Invalid length for XYZW packet")
+			raise Exception("Invalid length for WXZY packet")
 		
 		# we need to process the SCAL value to measure properly the DATA
 		stype = map_type(klvdata.type)
 		s = struct.Struct('>' + stype*4)
-		data = XYZWData._make(s.unpack_from(klvdata.rawdata))
+		data = WXZYData._make(s.unpack_from(klvdata.rawdata))
 		return(data)
 
 class LabelACCL(LabelXYZData):
 	"""
 	3-axis accelerometer 200Hz, m/s2
+	MAX clocks in at 200Hz on video materials, 360 videos.
 	Data order -Y,X,Z
 	"""
 
+	# def __init__(self):
+	# 	LabelXYZData.__init__(self)
 	def __init__(self):
-		LabelXYZData.__init__(self)
+		LabelBase.__init__(self)
 
 class LabelGYRO(LabelXYZData):
 	"""
 	3-axis gyroscope 3200Hz, rad/s
+	MAX clocks in at 200Hz on video materials, 360 videos.
 	Data order -Y,X,Z
 	"""
 
@@ -183,23 +211,23 @@ class LabelGRAV(LabelXYZData):
 	def __init__(self):
 		LabelXYZData.__init__(self)
 
-class LabelCORI(LabelXYZWData):
+class LabelCORI(LabelWXZYData):
 	"""
 	4-axis camera orientation at FPS Hz, quaternions
 	Data order unknown
 	"""
 
 	def __init__(self):
-		LabelXYZWData.__init__(self)
+		LabelWXZYData.__init__(self)
 
-class LabelIORI(LabelXYZWData):
+class LabelIORI(LabelWXZYData):
 	"""
 	4-axis image orientation at FPS Hz, quaternions
 	Data order unknown
 	"""
 
 	def __init__(self):
-		LabelXYZWData.__init__(self)
+		LabelWXZYData.__init__(self)
 
 class LabelGPSF(LabelBase):
 	"""
@@ -330,16 +358,8 @@ class LabelTMPC(LabelBase):
 	def __init__(self):
 		LabelBase.__init__(self)
 
-skip_labels = [ 
-	"TIMO", "HUES", "SCEN", "YAVG", "ISOE", "FACE", "SHUT", "WBAL", "WRGB", "UNIF", "FCNM", "MTRX", "ORIN", "ORIO",
-	"FWVS", "KBAT", "ATTD",	"GLPI",	"VFRH",	"BPOS",	"ATTR",	"SIMU",	"ESCS",	"SCPR",	"LNED",	"CYTS",	"CSEN",
-  "WNDM", "MWET", "AALP",
-  "DISP" # From MAX360
-]
-
 labels = {
 		"VPTS" : LabelVPTS, ## Video picosecond timestamp
-		"ACCL" : LabelACCL,
 		"DEVC" : LabelEmpty,
 		"DVID" : LabelDVID,
 		"DVNM" : LabelDVNM,
@@ -361,7 +381,7 @@ labels = {
 		"TICK" : LabelEmpty,
 		"STNM" : LabelSTNM,
 		"ISOG" : LabelEmpty,
-		"SHUT" : LabelEmpty,
+		"SHUT" : LabelSHUT,
 		"TYPE" : LabelEmpty,
 		"FACE" : LabelEmpty,
 		"FCNM" : LabelEmpty,
@@ -371,7 +391,7 @@ labels = {
 		"MAGN" : LabelEmpty,
 		"STMP" : LabelEmpty,
 		"STPS" : LabelEmpty,
-		"SROT" : LabelEmpty,
+		"SROT" : LabelSROT,
 		"TIMO" : LabelEmpty,
 		"UNIF" : LabelEmpty,
 		"MTRX" : LabelEmpty,
@@ -385,9 +405,9 @@ labels = {
 		"SCEN" : LabelEmpty,
 		"HUES" : LabelEmpty,
 		"UNIF" : LabelEmpty,
-		"SROT" : LabelEmpty, ## not documented Sensor Readout Time
+		# "SROT" : LabelEmpty, ## not documented Sensor Readout Time
 		"MFGI" : LabelEmpty, ## hero6+ble
-		"acc1" : LabelEmpty, ## hero6+ble
+		"ACCL" : LabelACCL, ## hero6+ble
     ## Karma Drone
 		"FWVS" : LabelEmpty,
 		"KBAT" : LabelEmpty,
@@ -414,7 +434,7 @@ labels = {
     # "HUES" : LabelEmpty,	# Predominant hues over the frame	8 - 10	n/a	struct ubyte hue, ubyte weight, HSV_Hue = hue x 360/255
     # "UNIF" : LabelEmpty,	# Image uniformity	8 - 10	range 0 to 1.0 where 1.0 is a solid color	
     # "SCEN" : LabelEmpty,	# Scene classifier in probabilities	8 - 10	n/a	FourCC scenes: SNOW, URBAn, INDOor, WATR, VEGEtation, BEACh
-    "SROT" : LabelEmpty,	# Sensor Read Out Time	at base frame rate 24/25/30	n/a	this moves to a global value in HERO8
+    # "SROT" : LabelEmpty,	# Sensor Read Out Time	at base frame rate 24/25/30	n/a	this moves to a global value in HERO8
 
     ## HERO8 Black (v1.2) Adds, Removes, Changes, Otherwise Supports All HERO7 metadata
     # "CORI" : LabelCORI,	# Camera ORIentation	frame rate	n/a	Quaterions for the camera orientation since capture start
@@ -430,7 +450,19 @@ labels = {
     "GRAV" : LabelGRAV,	# GRAvity Vector	frame rate	n/a	Vector for the direction for gravity
     "DISP" : LabelEmpty,	# Disparity track (360 modes)	frame rate	n/a	1-D depth map for the objects seen by the two lenses
 
+    "WNDM" : LabelEmpty,	# Wind
+    "MWET" : LabelEmpty,	# 
+    "AALP" : LabelEmpty,	# 
+
 }
+
+skip_labels = [ 
+	"TIMO", "HUES", "SCEN", "YAVG", "ISOE", "FACE", "SHUT", "WBAL", "WRGB", "UNIF", "FCNM", "MTRX", "ORIN", "ORIO",
+	"FWVS", "KBAT", "ATTD",	"GLPI",	"VFRH",	"BPOS",	"ATTR",	"SIMU",	"ESCS",	"SCPR",	"LNED",	"CYTS",	"CSEN",
+  "WNDM", "MWET", "AALP",
+  "DISP" # From MAX360
+]
+
 
 def Manage(klvdata):
 	return labels[klvdata.fourCC]().Build(klvdata)
