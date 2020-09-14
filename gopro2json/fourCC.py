@@ -24,7 +24,7 @@ maptype = { 'c': 'c',
 			'J': 'Q'
 	}
 
-  
+
 def map_type(type):
 	ctype = chr(type)
 	if ctype in maptype.keys():

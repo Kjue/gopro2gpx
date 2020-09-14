@@ -1,10 +1,14 @@
-# About gopro2gpx
+# About gopro2json
 
-This fork intends to dig out the data embedded into the GoPro MAX video files (extension .360) and especially the more esoteric parts. My main concern is to access the data and extract it.
+Python script that parses the gpmd stream for GOPRO data track embedded in MP4-files and extract the interesting data into a JSON document.
+
+This fork intends to dig out the data embedded in **GoPro MAX video files** (extension .360) and especially the more esoteric parts. My main concern is to access the data and extract it to a JSON document.
+
+-- Mikael Lavi
 
 ## Originally
 
-Python script that parses the gpmd stream for GOPRO moov track (MP4) and extract the GPS info into a GPX (and kml) file.  
+Python script that parses the gpmd stream for GOPRO moov track (MP4) and extract the GPS info into a GPX (and kml) file.
 
 Tested on a GoPro7, but it should work on any camera above the GoPro5.  
 
