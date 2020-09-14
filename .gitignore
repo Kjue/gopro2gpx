@@ -1,3 +1,4 @@
+# source media
 *.360
 
 # results
@@ -8,3 +9,4 @@
 # builds
 __pycache__
 *.pyc
+*.egg-info
