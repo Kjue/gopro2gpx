@@ -2,31 +2,27 @@
 
 Python script that parses the gpmd stream for GOPRO data track embedded in MP4-files and extract the interesting data into a JSON document.
 
+Gopro cameras write out a lot of sensor information into the MP4-videos produced by the cameras. Gopro's [Quik](https://es.shop.gopro.com/softwareandapp/quik-%7C-desktop/Quik-Desktop.html) (old now)
+allows you to process the metadata stored along the videos, and show it as an overlay. Intent here is to extract the data from the `MP4` file. The data is stored in a format called **GPMF**, you can get all the info in this repo [https://github.com/gopro/gpmf-parser](https://github.com/gopro/gpmf-parser).
+Also, there are some implementations in **go**. Check this repo [https://github.com/stilldavid/gopro-utils/](https://github.com/stilldavid/gopro-utils/).
+
 This fork intends to dig out the data embedded in **GoPro MAX video files** (extension .360) and especially the more esoteric parts. My main concern is to access the data and extract it to a JSON document.
 
 -- Mikael Lavi
 
-## Originally
+# Development with local deployment
 
-Python script that parses the gpmd stream for GOPRO moov track (MP4) and extract the GPS info into a GPX (and kml) file.
+In order to try out this library and to install it in local pip you may use this command. It makes it easier to test out the integration with other code.
 
-Tested on a GoPro7, but it should work on any camera above the GoPro5.  
+```bash
+python setup.py develop
+```
 
-Tested on Windows7 and MacOS Sierra. 
+And in order to install this repository to your Python app you may use the github repository to directly install the dependency by directly installing with pip or adding this reference to your `requirements.txt` for installation as dependency.
 
-I always like to print some additional info overlaying my action videos. These overlays will show data about speed, elevation, 
-gps info, and so on. I started a project wrotten on python 2.7 that works fine. gets a `gpx` track file, a `mp4` file and some
-configuration, and builds an overlay with the data:
-
-* [Python Overlay 1.0](https://www.youtube.com/watch?v=Fg8Sf4fPCwY)
-* [Python Overlay 2.0](https://www.youtube.com/watch?v=SGQ2KWcBtwY)
-
-Recently, I bought a Gopro7 black, that supports GPS inside the camera. Gopro's [Quik](https://es.shop.gopro.com/softwareandapp/quik-%7C-desktop/Quik-Desktop.html)
-allows you to process the metadata stored along the videos, and show it as an overlay. I want to extract the data from the `MP4` file, so I start to read about in
-the web. The data is stored in a format called **GPMF*, you can get all the info in this repo [https://github.com/gopro/gpmf-parser](https://github.com/gopro/gpmf-parser).
-Also, there are some implementations in **go**. Check this repo [https://github.com/stilldavid/gopro-utils/](https://github.com/stilldavid/gopro-utils/).
-
-My idea is process the file in python, extract the data, and build a file in a known format. I generate *kml* and *gpx*.
+```
+git+https://github.com/Kjue/gopro2json.git#egg=gopro2json
+```
 
 # Dependencies
 
@@ -36,9 +32,10 @@ My idea is process the file in python, extract the data, and build a file in a k
 
 # Installation
 
-1. Clone the repo [gopro2gpx](https://github.com/juanmcasillas/gopro2gpx.git) in your machine, extract it.
+1. Clone the repo [gopro2json](https://github.com/kjue/gopro2json.git) in your machine, extract it.
 2. Ensure you have **python3**, **FFmpeg** and **FFprobe** installed in your system.
-3. Edit `config.py` and modify the following lines to point to your binaries:
+
+*Optional:* Edit `config.py` and modify the following lines to point to your binaries:
 
 ```python    
      if platform.system().lower() == 'windows':
@@ -47,13 +44,13 @@ My idea is process the file in python, extract the data, and build a file in a k
         config = Config('/usr/local/bin/ffmpeg', '/usr/local/bin/ffprobe')
 ```    
 
- 4. Run it (skip bad points, show the labels debug, create `hero6.kml` and `hero6.gpx` files)
+ 3. Run it to output a JSON-file containing the GYRO, CORI, and IORI vector streams for the video.
 
  ```shell
-    % python gopro2gpx.py -s -vvv samples/hero6.mp4 hero6
+    % python gopro2json.py samples/hero6.mp4
  ```
 
-# Arguments and options
+# Arguments and options WIP
 
 ```
 % python gopro2gpx.py  --help
@@ -75,17 +72,6 @@ optional arguments:
 * `-v`, `-vv`, `-vvv`: Verbose mode. First show some info, second dumps the `gpmd` track info a file called `outputfile.bin` and third (`-vvv`) shows the labels.
 * `-b`: read the data from a binary dump fo the gpmd track istead of the MP4 video. Useful for testing, so I don't need to move big MP4 files.
 * `-s`: skip "bad" GPS points. When `GPSFIX=0` (no GPS satellite signal received) GPS data is unacurrate. Ignore these points.
-
-# How to get "accurate" GPS data in your GoPro  [**IMPORTANT**]
-
-Follow these steps:
-
-1. Turn the camera on using the side mode button (Do Not use Quick Capture if GPS information is important to you)
-2. Wait at least one minute (5-10 is best) before you start to record to allow the most satellite locks
-3. Use the camera in the Frame mount and not the Super Suit (it will work in the Super Suit but might have a weaker signal)
-
-Read the following thread for more info:
-* [GOPRO Forum](https://community.gopro.com/t5/GoPro-Apps-for-Desktop/GPS-data-all-wrong/td-p/200091?profile.language=es)
 
 # Technnical info
 
