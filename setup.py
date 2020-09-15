@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="gopro2json-mikael-lavi", # Replace with your own username
+    name="gopro2json-kjue", # Replace with your own username
     version="0.1.0",
     author="Mikael Lavi",
     author_email="mikael@wanderfeel.com",
@@ -18,5 +18,5 @@ setuptools.setup(
         "License :: OSI Approved :: GPL3 License",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.6',
+    python_requires='>=2.7',
 )
