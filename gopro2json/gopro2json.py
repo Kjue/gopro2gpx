@@ -72,8 +72,8 @@ def Build360Points(data, skip=False):
     streams['streams']['FPS'] = round(1 / ((VPTS - VPTS_init) / 1000 / 1000 / len(samples)), 1)
     return streams
 
-def Parse360ToJson(filename, binary=False, verbose=None):
-    cfg = config.setup_environment(filename=filename)
+def Parse360ToJson(filename, output=None, binary=False, verbose=None):
+    cfg = config.setup_environment(filename=filename, outputfile=output)
     parser = gpmf.Parser(cfg)
     data = parser.readFromMP4()
     CASN = parser.readCameraSerial()
@@ -87,7 +87,7 @@ def Parse360ToJson(filename, binary=False, verbose=None):
         print("Can't create file. No camera info in %s. Exitting" % cfg.file)
         sys.exit(0)
 
-    fd = open("%s.json" % cfg.outputfile , "w+")
+    fd = open("%s" % cfg.outputfile , "w+")
     fd.write(json.dumps(streams))
     fd.close()
 

@@ -15,7 +15,7 @@ class Config:
         self.ffmpeg_cmd = ffmpeg
         self.ffprobe_cmd = ffprobe
 
-def setup_environment(filename="", binary=False, verbose=False):
+def setup_environment(filename="", outputfile=None, binary=False, verbose=False):
     """
     The output of platform.system() is as follows:
     Linux: Linux
@@ -34,7 +34,10 @@ def setup_environment(filename="", binary=False, verbose=False):
         # configure arguments
         config.verbose = verbose
         config.file = filename
-        config.outputfile = file_name
+        if (outputfile != None):
+            config.outputfile = outputfile
+        else:
+            config.outputfile = '{}.json'.format(file_name)
 
     return config
 
