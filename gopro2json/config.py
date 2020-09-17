@@ -29,6 +29,8 @@ def setup_environment(filename="", outputfile=None, binary=False, verbose=False)
     else:
         ffmpeg = subprocess.run(["which", "ffmpeg"], capture_output=True).stdout.decode('utf-8')
         ffprobe = subprocess.run(["which", "ffprobe"], capture_output=True).stdout.decode('utf-8')
+        print('Configuring ffmpeg to: ', ffmpeg)
+        print('Configuring ffprobe to: ', ffprobe)
         config = Config(ffmpeg, ffprobe)
 
     if (len(filename)):
