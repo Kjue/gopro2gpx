@@ -7,6 +7,7 @@
 #
 
 import os
+import subprocess
 import platform
 import sys
 
@@ -26,7 +27,9 @@ def setup_environment(filename="", outputfile=None, binary=False, verbose=False)
         # config = Config('C:\\Software\\ffmpeg\\bin\\ffmpeg.exe', 'C:\\Software\\ffmpeg\\bin\\ffprobe.exe')
         config = Config('ffmpeg.exe', 'ffprobe.exe')
     else:
-        config = Config('/usr/local/bin/ffmpeg', '/usr/local/bin/ffprobe')
+        ffmpeg = subprocess.run(["which", "ffmpeg"], capture_output=True).stdout.decode('utf-8')
+        ffprobe = subprocess.run(["which", "ffprobe"], capture_output=True).stdout.decode('utf-8')
+        config = Config(ffmpeg, ffprobe)
 
     if (len(filename)):
         file_name, ext = os.path.splitext(filename)
