@@ -32,8 +32,8 @@ def map_type(type):
 	return(ctype)
 
 
-XYZData = collections.namedtuple('XYZData',"y x z")
-WXZYData = collections.namedtuple('WXZYData',"w x z y")
+XYZData = collections.namedtuple('XYZData',"x y z")
+WXZYData = collections.namedtuple('WXZYData',"w x y z")
 UNITData = collections.namedtuple("UNITData","lat lon alt speed speed3d")
 KARMAUNIT10Data = collections.namedtuple("KARMAUNIT10Data","A  Ah J degC V1 V2 V3 V4 s p1")
 KARMAUNIT15Data = collections.namedtuple("KARMAUNIT15Data","A  Ah J degC V1 V2 V3 V4 s p1 e1 e2 e3 e4 p2")
@@ -50,8 +50,10 @@ class LabelBase:
 			return None
 		stype = map_type(klvdata.type)
 		s = struct.Struct('>' + stype)
-		data, = s.unpack_from(klvdata.rawdata)
-		return(data)
+		data = s.iter_unpack(klvdata.rawdata).__next__()
+		if (len(data)>0):
+			return (data[0])
+		return(None)
 
 class LabelEmpty(LabelBase):
 	def __init__(self):
@@ -80,8 +82,10 @@ class Label_TypeFloat(LabelBase):
 		stype = map_type(klvdata.type)
 		fmt = '>' + stype * klvdata.repeat
 		s = struct.Struct(fmt)
-		data, = s.unpack_from(klvdata.rawdata)
-		return(data)
+		data = s.iter_unpack(klvdata.rawdata).__next__()
+		if (len(data)>0):
+			return (data[0])
+		return(0.0)
 
 class Label_TypeUTimeStamp(LabelBase):
 	"c 1 X"
@@ -164,6 +168,9 @@ class LabelXYZData(LabelBase):
 		stype = map_type(klvdata.type)
 		s = struct.Struct('>' + stype*3)
 		data = XYZData._make(s.unpack_from(klvdata.rawdata))
+		# Correct the polarity of the data to right handed coordsys.
+		data.y = -data.y
+		data.z = -data.z
 		return(data)
 
 class LabelWXZYData(LabelBase):
@@ -178,6 +185,8 @@ class LabelWXZYData(LabelBase):
 		stype = map_type(klvdata.type)
 		s = struct.Struct('>' + stype*4)
 		data = WXZYData._make(s.unpack_from(klvdata.rawdata))
+		# Correct the polarity of the data to right handed coordsys.
+		data.y = -data.y
 		return(data)
 
 class LabelACCL(LabelXYZData):

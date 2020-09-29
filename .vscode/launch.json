@@ -8,7 +8,8 @@
       "name": "Python: gopro2json",
       "type": "python",
       "request": "launch",
-      "program": "${workspaceFolder}/gopro2json/gopro2json.py",
+      // "program": "${workspaceFolder}/gopro2json/gopro2json.py",
+      "program": "${workspaceFolder}/test/test.py",
       "console": "integratedTerminal",
       "args": [
         "GS010144.360"
