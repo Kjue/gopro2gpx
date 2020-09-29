@@ -33,7 +33,7 @@ def map_type(type):
 
 
 XYZData = collections.namedtuple('XYZData',"x y z")
-WXZYData = collections.namedtuple('WXZYData',"w x y z")
+WXYZData = collections.namedtuple('WXZYData',"w x y z")
 UNITData = collections.namedtuple("UNITData","lat lon alt speed speed3d")
 KARMAUNIT10Data = collections.namedtuple("KARMAUNIT10Data","A  Ah J degC V1 V2 V3 V4 s p1")
 KARMAUNIT15Data = collections.namedtuple("KARMAUNIT15Data","A  Ah J degC V1 V2 V3 V4 s p1 e1 e2 e3 e4 p2")
@@ -168,9 +168,6 @@ class LabelXYZData(LabelBase):
 		stype = map_type(klvdata.type)
 		s = struct.Struct('>' + stype*3)
 		data = XYZData._make(s.unpack_from(klvdata.rawdata))
-		# Correct the polarity of the data to right handed coordsys.
-		data.y = -data.y
-		data.z = -data.z
 		return(data)
 
 class LabelWXZYData(LabelBase):
@@ -184,9 +181,7 @@ class LabelWXZYData(LabelBase):
 		# we need to process the SCAL value to measure properly the DATA
 		stype = map_type(klvdata.type)
 		s = struct.Struct('>' + stype*4)
-		data = WXZYData._make(s.unpack_from(klvdata.rawdata))
-		# Correct the polarity of the data to right handed coordsys.
-		data.y = -data.y
+		data = WXYZData._make(s.unpack_from(klvdata.rawdata))
 		return(data)
 
 class LabelACCL(LabelXYZData):
