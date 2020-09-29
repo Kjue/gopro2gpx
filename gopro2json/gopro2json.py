@@ -68,7 +68,7 @@ def Build360Points(data, skip=False):
 
             # Correct the polarity of the data to right handed coordsys.
             if (type(d.data) == fourCC.WXYZData):
-                sample[d.fourCC]['y'] = -sample[d.fourCC]['y']
+                sample[d.fourCC]['z'] = -sample[d.fourCC]['z']
 
             if (type(d.data) == fourCC.XYZData):
                 sample[d.fourCC]['y'] = -sample[d.fourCC]['y']
