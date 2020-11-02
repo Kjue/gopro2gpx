@@ -42,7 +42,7 @@ def Build360Points(data, skip=False):
     VPTS_init = None
     CTS = 0
 
-    DATAS = ['CORI', 'IORI', 'GRAV']
+    DATAS = ['CORI', 'ACCL', 'GRAV', 'MAGN']
     samples = []
     streams = { 'streams': {
         'datas': DATAS,
@@ -59,6 +59,8 @@ def Build360Points(data, skip=False):
                 VPTS_init = d.data
             VPTS = d.data
             CTS = int((VPTS - VPTS_init) / 1000)
+        elif d.fourCC == 'DISP':
+            sample[d.fourCC] = d.data
         elif d.fourCC in DATAS:
             sample = { 'CTS': CTS, 'VPTS': VPTS, 'SCAL': SCAL } if len(samples) == 0 else samples[-1]
             if sample['CTS'] < CTS:

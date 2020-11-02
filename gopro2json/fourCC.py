@@ -20,6 +20,7 @@ maptype = { 'c': 'c',
 			'U': 'c',
 			'l': 'l',
 			'B': 'B',
+			'#': 'B',
 			'f': 'f',
 			'J': 'Q'
 	}
@@ -156,6 +157,25 @@ class LabelSCAL(LabelBase):
 		data = s.unpack_from(klvdata.rawdata)
 		return(data)
 
+class LabelDISP(LabelBase):
+	def __init__(self):
+		LabelBase.__init__(self)
+	
+	def Build(self, klvdata):
+		"""
+		SCAL s 2 1 (when scaling a single item)
+		SCAL l 4 5 (when scaling more values)
+		"""
+		if klvdata.repeat == 1:
+			return LabelBase.Build(self,klvdata)
+		
+		# if more than 1 item in repeat, return a list (GPS data)
+		stype = map_type(klvdata.type)
+		fmt = '>' + stype * klvdata.repeat
+		s = struct.Struct(fmt)
+		data = s.unpack_from(klvdata.rawdata)
+		return(data)
+
 class LabelXYZData(LabelBase):
 	def __init__(self):
 		LabelBase.__init__(self)
@@ -191,10 +211,17 @@ class LabelACCL(LabelXYZData):
 	Data order -Y,X,Z
 	"""
 
-	# def __init__(self):
-	# 	LabelXYZData.__init__(self)
 	def __init__(self):
-		LabelBase.__init__(self)
+		LabelXYZData.__init__(self)
+
+class LabelMAGN(LabelWXZYData):
+	"""
+	3-axis magnetometer 24Hz, m/s2
+	Data order -Y,X,Z ????
+	"""
+
+	def __init__(self):
+		LabelWXZYData.__init__(self)
 
 class LabelGYRO(LabelXYZData):
 	"""
@@ -392,7 +419,7 @@ labels = {
 		"ISOE" : LabelEmpty,
 		"WBAL" : LabelEmpty,
 		"WRGB" : LabelEmpty,
-		"MAGN" : LabelEmpty,
+		"MAGN" : LabelMAGN,
 		"STMP" : LabelEmpty,
 		"STPS" : LabelEmpty,
 		"SROT" : LabelSROT,
@@ -452,7 +479,7 @@ labels = {
     "CORI" : LabelCORI,	# Camera ORIentation	frame rate	n/a	Quaterions for the camera orientation since capture start
     "IORI" : LabelIORI,	# Image ORIentation	frame rate	n/a	Quaterions for the image orientation relative to the camera body
     "GRAV" : LabelGRAV,	# GRAvity Vector	frame rate	n/a	Vector for the direction for gravity
-    "DISP" : LabelEmpty,	# Disparity track (360 modes)	frame rate	n/a	1-D depth map for the objects seen by the two lenses
+    "DISP" : LabelDISP,	# Disparity track (360 modes)	frame rate	n/a	1-D depth map for the objects seen by the two lenses
 
     "WNDM" : LabelEmpty,	# Wind
     "MWET" : LabelEmpty,	# 
@@ -463,8 +490,8 @@ labels = {
 skip_labels = [ 
 	"TIMO", "HUES", "SCEN", "YAVG", "ISOE", "FACE", "SHUT", "WBAL", "WRGB", "UNIF", "FCNM", "MTRX", "ORIN", "ORIO",
 	"FWVS", "KBAT", "ATTD",	"GLPI",	"VFRH",	"BPOS",	"ATTR",	"SIMU",	"ESCS",	"SCPR",	"LNED",	"CYTS",	"CSEN",
-  "WNDM", "MWET", "AALP",
-  "DISP" # From MAX360
+  "WNDM", "MWET", "AALP"
+  # "DISP" # From MAX360
 ]
 
 
