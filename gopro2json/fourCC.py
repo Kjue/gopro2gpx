@@ -187,7 +187,7 @@ class LabelXYZData(LabelBase):
 		# we need to process the SCAL value to measure properly the DATA
 		stype = map_type(klvdata.type)
 		s = struct.Struct('>' + stype*3)
-		data = XYZData._make(s.unpack_from(klvdata.rawdata))
+		data = XYZData._make(s.iter_unpack(klvdata.rawdata[0:klvdata.length]).__next__())
 		return(data)
 
 class LabelWXZYData(LabelBase):
@@ -201,7 +201,7 @@ class LabelWXZYData(LabelBase):
 		# we need to process the SCAL value to measure properly the DATA
 		stype = map_type(klvdata.type)
 		s = struct.Struct('>' + stype*4)
-		data = WXYZData._make(s.unpack_from(klvdata.rawdata))
+		data = WXYZData._make(s.iter_unpack(klvdata.rawdata[0:klvdata.length]).__next__())
 		return(data)
 
 class LabelACCL(LabelXYZData):
@@ -390,7 +390,7 @@ class LabelTMPC(LabelBase):
 		LabelBase.__init__(self)
 
 labels = {
-		"VPTS" : LabelVPTS, ## Video picosecond timestamp
+		"VPTS" : LabelVPTS, ## Video presentation timestamp as per FFMPEG essentially
 		"DEVC" : LabelEmpty,
 		"DVID" : LabelDVID,
 		"DVNM" : LabelDVNM,

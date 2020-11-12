@@ -33,6 +33,7 @@ def Build360Points(data, skip=False):
     """
     Data comes UNSCALED so we have to do: Data / Scale.
     Do a finite state machine to process the labels.
+    Data does contain the scale.
     GET
      - SCAL     Scale value
     """
@@ -58,15 +59,17 @@ def Build360Points(data, skip=False):
             if VPTS == None:
                 VPTS_init = d.data
             VPTS = d.data
-            CTS = int((VPTS - VPTS_init) / 1000)
-        elif d.fourCC == 'DISP':
-            sample[d.fourCC] = d.data
+            CTS = int((VPTS - VPTS_init) / 1001)
+        # Disabled DISP data for now.
+        # elif d.fourCC == 'DISP':
+        #     sample[d.fourCC] = d.data
         elif d.fourCC in DATAS:
             sample = { 'CTS': CTS, 'VPTS': VPTS, 'SCAL': SCAL } if len(samples) == 0 else samples[-1]
             if sample['CTS'] < CTS:
                 sample = { 'CTS': CTS, 'VPTS': VPTS, 'SCAL': SCAL }
 
             sample[d.fourCC] = d.data._asdict()
+            # listdict = list(map(lambda x: x._asdict(), d.data))
 
             # Correct the polarity of the data to right handed coordsys.
             if (type(d.data) == fourCC.WXYZData):
@@ -82,13 +85,15 @@ def Build360Points(data, skip=False):
     streams['streams']['FPS'] = round(1 / ((VPTS - VPTS_init) / 1000 / 1000 / len(samples)), 1)
     return streams
 
-def Parse360ToJson(filename, output=None, binary=False, verbose=None):
-    cfg = config.setup_environment(filename=filename, outputfile=output)
-    parser = gpmf.Parser(cfg)
-    data = parser.readFromMP4()
-    CASN = parser.readCameraSerial()
+def Parse360ToJson(files=[], output=None, binary=False, verbose=None):
+    datas = []
+    for f in files:
+        cfg = config.setup_environment(f, outputfile=output)
+        parser = gpmf.Parser(cfg)
+        datas.extend(parser.readFromMP4())
+        CASN = parser.readCameraSerial()
 
-    streams = Build360Points(data)
+    streams = Build360Points(datas)
     streams['camera'] = CASN
     streams['source'] = cfg.outputfile
     streams['date'] = parser.date
