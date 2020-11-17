@@ -79,6 +79,9 @@ class Label_TypeFloat(LabelBase):
 		LabelBase.__init__(self)
 	
 	def Build(self, klvdata):
+		if not klvdata.rawdata:
+			return None
+
 		# if more than 1 item in repeat, return a list (GPS data)
 		stype = map_type(klvdata.type)
 		fmt = '>' + stype * klvdata.repeat
@@ -135,6 +138,8 @@ class LabelVPTS(LabelBase):
 		LabelBase.__init__(self)
 	
 	def Build(self, klvdata):
+		if not klvdata.rawdata:
+			return None
 		if klvdata.repeat == 1:
 			return LabelBase.Build(self,klvdata)
 
@@ -147,6 +152,8 @@ class LabelSCAL(LabelBase):
 		SCAL s 2 1 (when scaling a single item)
 		SCAL l 4 5 (when scaling more values)
 		"""
+		if not klvdata.rawdata:
+			return None
 		if klvdata.repeat == 1:
 			return LabelBase.Build(self,klvdata)
 		
@@ -166,6 +173,9 @@ class LabelDISP(LabelBase):
 		SCAL s 2 1 (when scaling a single item)
 		SCAL l 4 5 (when scaling more values)
 		"""
+		if not klvdata.rawdata:
+			return None
+
 		if klvdata.repeat == 1:
 			return LabelBase.Build(self,klvdata)
 		
@@ -181,9 +191,12 @@ class LabelXYZData(LabelBase):
 		LabelBase.__init__(self)
 
 	def Build(self, klvdata):
+		if not klvdata.rawdata:
+			return None
+
 		if klvdata.size != 6 and klvdata.size != 12:
 			raise Exception("Invalid length for XYZ packet")
-		
+
 		# we need to process the SCAL value to measure properly the DATA
 		stype = map_type(klvdata.type)
 		s = struct.Struct('>' + stype*3)
@@ -195,9 +208,12 @@ class LabelWXZYData(LabelBase):
 		LabelBase.__init__(self)
 
 	def Build(self, klvdata):
+		if not klvdata.rawdata:
+			return None
+		
 		if klvdata.size != 8 and klvdata.size != 16:
 			raise Exception("Invalid length for WXZY packet")
-		
+
 		# we need to process the SCAL value to measure properly the DATA
 		stype = map_type(klvdata.type)
 		s = struct.Struct('>' + stype*4)

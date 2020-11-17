@@ -68,6 +68,9 @@ def Build360Points(data, skip=False):
             if sample['CTS'] < CTS:
                 sample = { 'CTS': CTS, 'VPTS': VPTS, 'SCAL': SCAL }
 
+            if not d.data:
+                continue
+
             sample[d.fourCC] = d.data._asdict()
             # listdict = list(map(lambda x: x._asdict(), d.data))
 
