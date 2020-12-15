@@ -512,7 +512,7 @@ skip_labels = [
 
 def Manage(klvdata):
 	if klvdata.fourCC in labels:
-	return labels[klvdata.fourCC]().Build(klvdata)
+		return labels[klvdata.fourCC]().Build(klvdata)
 	else:
 		return None
 
