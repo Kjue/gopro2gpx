@@ -14,6 +14,7 @@ This fork intends to dig out the data embedded in **GoPro MAX video files** (ext
 
 ## 0.2.0
 - Preliminary support for arrayd data from dataframes. Able to pick out the first on the line of the arrayed datas. WIP for handling them all.
+- Extract highlights from the video files.
 
 ## 0.1.0
 - First working version in my use case. This one will handle individual outputs from dataframes and not arrays of data. Dataframe may contain 200Hz ACCL data and this cannot handle it.
