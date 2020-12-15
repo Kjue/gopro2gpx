@@ -24,7 +24,7 @@ class KLVData:
         
         self.type = int(self.type)
         self.length = self.size * self.repeat
-        self.padded_length = self.pad(self.length)    
+        self.padded_length = self.pad(self.length)
 
         # read now the data, in raw format
         self.rawdata = self.readRawData(data, offset)
@@ -57,7 +57,7 @@ class KLVData:
         return i
 
     def skip(self):
-        return self.fourCC in fourCC.skip_labels
+        return self.fourCC in fourCC.skip_labels or not self.fourCC in fourCC.labels.keys()
 
 
     def readRawData(self, data, offset):

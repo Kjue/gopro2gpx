@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 #
+# 05/06/2020
+# Mikael Lavi <mikael.lavi@gmail.com>
+# https://github.com/kjue/gopro2json.git
+#
 # 17/02/2019 
 # Juan M. Casillas <juanm.casillas@gmail.com>
 # https://github.com/juanmcasillas/gopro2gpx.git
@@ -38,6 +42,12 @@ def Build360Points(data, skip=False):
      - SCAL     Scale value
     """
 
+    # Stream name
+    STNM = ''
+    
+    # Total Samples delivered
+    TSMP = ''
+    
     SCAL = fourCC.XYZData(1.0, 1.0, 1.0)
     VPTS = None
     VPTS_init = None
@@ -45,16 +55,18 @@ def Build360Points(data, skip=False):
 
     DATAS = ['CORI', 'ACCL', 'GRAV', 'MAGN']
     samples = []
-    streams = { 'streams': {
+    streams = {'streams': {
         'datas': DATAS,
         'samples': samples
     }}
 
     for d in data:
-        if d.fourCC == 'SCAL':
-            SCAL = d.data
+        if d.fourCC == 'STNM':
+            STNM = d.data
         elif d.fourCC == 'TSMP':
             TSMP = d.data
+        elif d.fourCC == 'SCAL':
+            SCAL = d.data
         elif d.fourCC == 'VPTS':
             if VPTS == None:
                 VPTS_init = d.data
@@ -90,22 +102,25 @@ def Build360Points(data, skip=False):
 
 def Parse360ToJson(files=[], output=None, binary=False, verbose=None):
     datas = []
+    anchors = []
     for f in files:
         cfg = config.setup_environment(f, outputfile=output)
         parser = gpmf.Parser(cfg)
         datas.extend(parser.readFromMP4())
+        anchors.extend(parser.extractHighlightTimecodes())
         CASN = parser.readCameraSerial()
 
     streams = Build360Points(datas)
     streams['camera'] = CASN
     streams['source'] = cfg.outputfile
     streams['date'] = parser.date
+    streams['anchors'] = anchors
 
     if len(streams) == 0:
         print("Can't create file. No camera info in %s. Exitting" % cfg.file)
         sys.exit(0)
 
-    fd = open("%s" % cfg.outputfile , "w+")
+    fd = open("%s" % cfg.outputfile, "w+")
     fd.write(json.dumps(streams))
     fd.close()
 
@@ -145,6 +160,6 @@ if __name__ == "__main__":
     #
     # Write the results
     #
-    fd = open("%s.json" % config.outputfile , "w+")
+    fd = open("%s.json" % config.outputfile, "w+")
     fd.write(json.dumps(streams))
     fd.close()

@@ -406,6 +406,7 @@ class LabelTMPC(LabelBase):
 		LabelBase.__init__(self)
 
 labels = {
+		"STNM" : LabelSTNM,
 		"VPTS" : LabelVPTS, ## Video presentation timestamp as per FFMPEG essentially
 		"DEVC" : LabelEmpty,
 		"DVID" : LabelDVID,
@@ -426,7 +427,6 @@ labels = {
 		"TSMP" : LabelTSMP,
 		"UNIT" : LabelUNIT,
 		"TICK" : LabelEmpty,
-		"STNM" : LabelSTNM,
 		"ISOG" : LabelEmpty,
 		"SHUT" : LabelSHUT,
 		"TYPE" : LabelEmpty,
@@ -451,7 +451,6 @@ labels = {
 
 		"SCEN" : LabelEmpty,
 		"HUES" : LabelEmpty,
-		"UNIF" : LabelEmpty,
 		# "SROT" : LabelEmpty, ## not documented Sensor Readout Time
 		"MFGI" : LabelEmpty, ## hero6+ble
 		"ACCL" : LabelACCL, ## hero6+ble
@@ -512,5 +511,8 @@ skip_labels = [
 
 
 def Manage(klvdata):
+	if klvdata.fourCC in labels:
 	return labels[klvdata.fourCC]().Build(klvdata)
+	else:
+		return None
 

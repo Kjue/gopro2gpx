@@ -16,7 +16,7 @@ if __name__ == "__main__":
     outFile = outFile + '.transform.json'
 
     try:
-        gopro2json.Parse360ToJson(inFile, outFile)
+        gopro2json.Parse360ToJson([inFile], outFile)
     except Exception as error:
         print('We should be processing timelapse items only! {}'.format(error))
 

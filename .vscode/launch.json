@@ -10,9 +10,10 @@
       "request": "launch",
       // "program": "${workspaceFolder}/gopro2json/gopro2json.py",
       "program": "${workspaceFolder}/test/test.py",
+      "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
       "args": [
-        "GS010144.360"
+        "GS010196.360"
       ]
     }
   ]
