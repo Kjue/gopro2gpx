@@ -230,14 +230,14 @@ class LabelACCL(LabelXYZData):
 	def __init__(self):
 		LabelXYZData.__init__(self)
 
-class LabelMAGN(LabelWXZYData):
+class LabelMAGN(LabelXYZData):
 	"""
 	3-axis magnetometer 24Hz, m/s2
 	Data order -Y,X,Z ????
 	"""
 
 	def __init__(self):
-		LabelWXZYData.__init__(self)
+		LabelXYZData.__init__(self)
 
 class LabelGYRO(LabelXYZData):
 	"""

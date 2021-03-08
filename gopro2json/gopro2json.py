@@ -53,7 +53,7 @@ def Build360Points(data, skip=False):
     VPTS_init = None
     CTS = 0
 
-    DATAS = ['CORI', 'ACCL', 'GRAV', 'MAGN']
+    DATAS = ['CORI', 'ACCL', 'GRAV', 'MAGN', 'GYRO']
     samples = []
     streams = {'streams': {
         'datas': DATAS,
