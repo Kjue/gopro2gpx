@@ -23,6 +23,7 @@ import array
 import sys
 import time
 from datetime import datetime
+from collections import Counter
 
 from . import config
 from . import gpmf
@@ -32,6 +33,10 @@ import sys
 
 import json
 
+  
+def most_frequent(List):
+    occurence_count = Counter(List)
+    return occurence_count.most_common(1)[0][0]
 
 def Build360Points(data, skip=False):
     """
@@ -97,7 +102,10 @@ def Build360Points(data, skip=False):
             if len(samples) == 0 or samples[-1]['CTS'] < CTS:
                 samples.append(sample)
 
-    streams['streams']['FPS'] = round(1 / ((VPTS - VPTS_init) / 1000 / 1000 / len(samples)), 1)
+    mapped = list(map(lambda a: \
+        (a[1]['VPTS'] or 0) - (a[0]['VPTS'] or 0), \
+        zip(samples, samples[1:])))
+    streams['streams']['FPS'] = 1 / (most_frequent(mapped) / 1000 / 1000)
     return streams
 
 def Parse360ToJson(files=[], output=None, binary=False, verbose=None):
