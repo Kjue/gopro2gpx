@@ -12,11 +12,18 @@ This fork intends to dig out the data embedded in **GoPro MAX video files** (ext
 
 # Versions
 
+## 0.2.2, 0.2.1
+
+- Fix FPS calculation to be based on observed sampling interval.
+- Issues with array handling fixed.
+
 ## 0.2.0
+
 - Preliminary support for arrayd data from dataframes. Able to pick out the first on the line of the arrayed datas. WIP for handling them all.
 - Extract highlights from the video files.
 
 ## 0.1.0
+
 - First working version in my use case. This one will handle individual outputs from dataframes and not arrays of data. Dataframe may contain 200Hz ACCL data and this cannot handle it.
 
 # Development with local deployment
@@ -35,29 +42,29 @@ git+https://github.com/Kjue/gopro2json.git#egg=gopro2json
 
 # Dependencies
 
-* [Python3](https://www.python.org/download/releases/3.0/)
-* [FFmpeg and FFprobe binaries](https://www.ffmpeg.org/download.html)
-* Valid MP4 with GPS data inside. Record something with your cam.
+- [Python3](https://www.python.org/download/releases/3.0/)
+- [FFmpeg and FFprobe binaries](https://www.ffmpeg.org/download.html)
+- Valid MP4 with GPS data inside. Record something with your cam.
 
 # Installation
 
 1. Clone the repo [gopro2json](https://github.com/kjue/gopro2json.git) in your machine, extract it.
 2. Ensure you have **python3**, **FFmpeg** and **FFprobe** installed in your system.
 
-*Optional:* Edit `config.py` and modify the following lines to point to your binaries:
+_Optional:_ Edit `config.py` and modify the following lines to point to your binaries:
 
-```python    
+```python
      if platform.system().lower() == 'windows':
         config = Config('C:\\Software\\ffmpeg\\bin\\ffmpeg.exe', 'C:\\Software\\ffmpeg\\bin\\ffprobe.exe')
     else:
         config = Config('/usr/local/bin/ffmpeg', '/usr/local/bin/ffprobe')
-```    
+```
 
- 3. Run it to output a JSON-file containing the GYRO, CORI, and IORI vector streams for the video.
+3.  Run it to output a JSON-file containing the GYRO, CORI, and IORI vector streams for the video.
 
- ```shell
-    % python gopro2json.py samples/hero6.mp4
- ```
+```shell
+   % python gopro2json.py samples/hero6.mp4
+```
 
 # Arguments and options WIP
 
@@ -74,17 +81,17 @@ optional arguments:
   -v, --verbose  increase output verbosity
   -b, --binary   read data from bin file
   -s, --skip     Skip bad points (GPSFIX=0)
-```  
+```
 
-* `file`: Gopro MP4 file or binary file with the gpmd dump.
-* `outputfile`: Dump the GPS info into `outputfile.kml` and `outputfile.gpx`. Don't use extension.
-* `-v`, `-vv`, `-vvv`: Verbose mode. First show some info, second dumps the `gpmd` track info a file called `outputfile.bin` and third (`-vvv`) shows the labels.
-* `-b`: read the data from a binary dump fo the gpmd track istead of the MP4 video. Useful for testing, so I don't need to move big MP4 files.
-* `-s`: skip "bad" GPS points. When `GPSFIX=0` (no GPS satellite signal received) GPS data is unacurrate. Ignore these points.
+- `file`: Gopro MP4 file or binary file with the gpmd dump.
+- `outputfile`: Dump the GPS info into `outputfile.kml` and `outputfile.gpx`. Don't use extension.
+- `-v`, `-vv`, `-vvv`: Verbose mode. First show some info, second dumps the `gpmd` track info a file called `outputfile.bin` and third (`-vvv`) shows the labels.
+- `-b`: read the data from a binary dump fo the gpmd track istead of the MP4 video. Useful for testing, so I don't need to move big MP4 files.
+- `-s`: skip "bad" GPS points. When `GPSFIX=0` (no GPS satellite signal received) GPS data is unacurrate. Ignore these points.
 
 # Technnical info
 
-To get the **gpmd** data, we need to explore the MP4 container, and extract the stream marked as *gpmd*. The script does it
+To get the **gpmd** data, we need to explore the MP4 container, and extract the stream marked as _gpmd_. The script does it
 automatically, but here is the output from `ffprobe`:
 
 ```
@@ -100,31 +107,31 @@ automatically, but here is the output from `ffprobe`:
         compatible_brands: mp41
         creation_time   : 2019-02-10 10:59:19
     Duration: 00:00:21.80, start: 0.000000, bitrate: 60420 kb/s
-        Stream #0:0(eng): Video: h264 (High) (avc1 / 0x31637661), yuvj420p(pc, bt709), 2704x1520 [SAR 1:1 DAR 169:95], 
+        Stream #0:0(eng): Video: h264 (High) (avc1 / 0x31637661), yuvj420p(pc, bt709), 2704x1520 [SAR 1:1 DAR 169:95],
         60173 kb/s, 50 fps, 50 tbr, 90k tbn, 100 tbc (default)
         Metadata:
         creation_time   : 2019-02-10 10:59:19
-        handler_name    : GoPro AVC  
+        handler_name    : GoPro AVC
         encoder         : GoPro AVC encoder
         timecode        : 10:59:19:31
         Stream #0:1(eng): Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, stereo, fltp, 189 kb/s (default)
         Metadata:
         creation_time   : 2019-02-10 10:59:19
-        handler_name    : GoPro AAC  
+        handler_name    : GoPro AAC
         timecode        : 10:59:19:31
         Stream #0:2(eng): Data: none (tmcd / 0x64636D74), 0 kb/s (default)
         Metadata:
         creation_time   : 2019-02-10 10:59:19
-        handler_name    : GoPro TCD  
+        handler_name    : GoPro TCD
         timecode        : 10:59:19:31
         Stream #0:3(eng): Data: none (gpmd / 0x646D7067), 29 kb/s (default)
         Metadata:
         creation_time   : 2019-02-10 10:59:19
-        handler_name    : GoPro MET  
+        handler_name    : GoPro MET
         Stream #0:4(eng): Data: none (fdsc / 0x63736466), 12 kb/s (default)
         Metadata:
         creation_time   : 2019-02-10 10:59:19
-        handler_name    : GoPro SOS  
+        handler_name    : GoPro SOS
 ```
 
 We need the stream called in this clase, `#0:3(eng)` that is, the `0:3` stream:
@@ -134,13 +141,13 @@ We need the stream called in this clase, `#0:3(eng)` that is, the `0:3` stream:
         Stream #0:3(eng): Data: none (gpmd / 0x646D7067), 29 kb/s (default)
         Metadata:
         creation_time   : 2019-02-10 10:59:19
-        handler_name    : GoPro MET  
-        [...]        
+        handler_name    : GoPro MET
+        [...]
 ```
 
 # Extracting the binary GPS data from MP4
 
-With this data, we can create a **binary file with the gpmd data inside**. The following command 
+With this data, we can create a **binary file with the gpmd data inside**. The following command
 copy the stream `0:3` from the file `GH010039.MP4` as raw, and stores it in `GH010039.bin`
 
 ```sh
@@ -179,21 +186,19 @@ later. The gps data is extracted from the .MP4 file. The gpx, kml and bin files 
 information and time, based on `SYST` and `GPRI` labels. I did my best trying to parse it. Seems accurate. If you have some long files to do,
 please extract the raw data and send me them (see [extracting data](#extracting-the-binary-gps-data-from-mp4)).
 
-* fusion ![Fusion](doc/fusion.png "Fusion")
-* hero5 ![Fusion](doc/hero5.png "Fusion")
-* hero6 (all the points) ![Fusion](doc/hero6_noskip.png "Fusion")
-* hero6 (only `GPSFIX!=0`) ![Fusion](doc/hero6_skip.png "Fusion")
-* karma ![Fusion](doc/karma.png "Fusion")
-* Gopro7 ![Gopro7](doc/gopro7.png "Gopro7")
+- fusion ![Fusion](doc/fusion.png 'Fusion')
+- hero5 ![Fusion](doc/hero5.png 'Fusion')
+- hero6 (all the points) ![Fusion](doc/hero6_noskip.png 'Fusion')
+- hero6 (only `GPSFIX!=0`) ![Fusion](doc/hero6_skip.png 'Fusion')
+- karma ![Fusion](doc/karma.png 'Fusion')
+- Gopro7 ![Gopro7](doc/gopro7.png 'Gopro7')
+
 # Status and future work
 
-Currently, `gopro2gpx` generates *hard-formatted* `kml`, and a useful `gpx` file. But:
+Currently, `gopro2gpx` generates _hard-formatted_ `kml`, and a useful `gpx` file. But:
 
 - Not all tags are parsed. see `fourCC.skip_labels` and `fourCC.labels` for more info.
 - The are a little error detecting code.
 - Karma drone GPS info has been infered from debug. Maybe the `SYST` label is parsed wrong.
 - `UNIT` labels are parsed hardcoded.
 - Need `ffmpeg` and `ffprobe` to extract the data.
-
-
-

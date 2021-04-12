@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="gopro2json-kjue", # Replace with your own username
-    version="0.2.0",
+    version="0.2.2",
     author="Mikael Lavi",
     author_email="mikael@wanderfeel.com",
     description="Python script that parses the gpmd stream for GOPRO data track embedded in MP4-files and extract the interesting data into a JSON document.",
