@@ -435,7 +435,8 @@ labels = {
 		"ISOE" : LabelEmpty,
 		"WBAL" : LabelEmpty,
 		"WRGB" : LabelEmpty,
-		"MAGN" : LabelMAGN,
+		# "MAGN" : LabelMAGN,
+		"MAGN" : LabelEmpty,    # Until fix for new version
 		"STMP" : LabelEmpty,
 		"STPS" : LabelEmpty,
 		"SROT" : LabelSROT,
@@ -505,6 +506,7 @@ labels = {
 skip_labels = [ 
 	"TIMO", "HUES", "SCEN", "YAVG", "ISOE", "FACE", "SHUT", "WBAL", "WRGB", "UNIF", "FCNM", "MTRX", "ORIN", "ORIO",
 	"FWVS", "KBAT", "ATTD",	"GLPI",	"VFRH",	"BPOS",	"ATTR",	"SIMU",	"ESCS",	"SCPR",	"LNED",	"CYTS",	"CSEN",
+	"MAGN" 		# Until fix with new version
   "WNDM", "MWET", "AALP"
   # "DISP" # From MAX360
 ]
