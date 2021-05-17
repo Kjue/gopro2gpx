@@ -115,6 +115,7 @@ def Parse360ToJson(files=[], output=None, binary=False, verbose=None):
         cfg = config.setup_environment(f, outputfile=output)
         parser = gpmf.Parser(cfg)
         datas.extend(parser.readFromMP4())
+        # TODO: [WF-129] Add an offset to the anchors so merged files may be handled.
         anchors.extend(parser.extractHighlightTimecodes())
         CASN = parser.readCameraSerial()
 
