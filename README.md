@@ -12,6 +12,9 @@ This fork intends to dig out the data embedded in **GoPro MAX video files** (ext
 
 # Versions
 
+## 0.2.3
+GoPro cameras have updated to version 2.0 and MAGN stream has switched from 3 params to 4. Disabled for urgency and will fix it later on.
+
 ## 0.2.2, 0.2.1
 
 - Fix FPS calculation to be based on observed sampling interval.
