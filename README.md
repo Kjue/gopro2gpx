@@ -12,7 +12,12 @@ This fork intends to dig out the data embedded in **GoPro MAX video files** (ext
 
 # Versions
 
+## 0.2.4
+
+Rewrote the chapters reading from ffprobe instead of blocks readout from the stream. This seems far more reliable since it depends on the ffprobe-command.
+
 ## 0.2.3
+
 GoPro cameras have updated to version 2.0 and MAGN stream has switched from 3 params to 4. Disabled for urgency and will fix it later on.
 
 ## 0.2.2, 0.2.1
@@ -92,7 +97,7 @@ optional arguments:
 - `-b`: read the data from a binary dump fo the gpmd track istead of the MP4 video. Useful for testing, so I don't need to move big MP4 files.
 - `-s`: skip "bad" GPS points. When `GPSFIX=0` (no GPS satellite signal received) GPS data is unacurrate. Ignore these points.
 
-# Technnical info
+# Technical info
 
 To get the **gpmd** data, we need to explore the MP4 container, and extract the stream marked as _gpmd_. The script does it
 automatically, but here is the output from `ffprobe`:
