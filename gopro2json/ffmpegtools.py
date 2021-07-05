@@ -8,7 +8,7 @@
 
 import subprocess
 import re
-
+from datetime import datetime
 class FFMpegTools:
 
     def __init__(self, config):
@@ -85,3 +85,66 @@ class FFMpegTools:
         if self.config.verbose == 2:
             print("GoPro recording date: %s" % date)
         return date
+
+    def getDuration(self, fname):
+        """
+        In case you run ffprobe on a video, it will print out duration and chapters data for you automatically:
+
+        $ ffprobe -sexagesimal <fname> 
+        Duration: 00:02:16.04, start: 0.000000, bitrate: 60270 kb/s
+          Chapter #0:0: start 6.240000, end 34.200000
+          Chapter #0:1: start 34.200000, end 55.400000
+          Chapter #0:2: start 55.400000, end 70.120000
+          Chapter #0:3: start 70.120000, end 97.720000
+          Chapter #0:4: start 97.720000, end 124.200000
+          Chapter #0:5: start 124.200000, end 136.040000
+          Stream #0:0(eng): Video: hevc (Main) (hvc1 / 0x31637668), yuvj420p(pc, bt709), 4096x1344 [SAR 1:1 DAR 64:21], 29996 kb/s, 25 fps, 25 tbr, 90k tbn, 25
+
+        Args:
+            fname (String): Specified filename to target
+        """
+        args = '-v error -select_streams v:0 -show_entries stream=duration -sexagesimal -of default=noprint_wrappers=1:nokey=1 ' + fname
+        args = args.split(' ')
+        output = self.runCmdRaw(self.config.ffprobe_cmd, args).decode('utf-8').strip()
+        duration = datetime.strptime(output, '%H:%M:%S.%f') - datetime(1900, 1, 1)
+
+        if self.config.verbose == 2:
+            print("GoPro recording duration: %s" % duration)
+        return duration.total_seconds()
+
+    def getFps(self, fname):
+        """Get actual fps of specified video file."""
+        args = '-v 0 -of csv=p=0 -select_streams v:0 -show_entries stream=r_frame_rate ' + fname
+        args = args.split(' ')
+        output = self.runCmdRaw(self.config.ffprobe_cmd, args).decode('utf-8').strip()
+        fps = eval(output)
+
+        if self.config.verbose == 2:
+            print("GoPro recording actual fps: %s" % fps)
+        return fps
+
+    def getChapters(self, fname):
+        """
+        In case you run ffprobe on a video, it will print out duration and chapters data for you automatically:
+
+        $ ffprobe -sexagesimal <fname> 
+        Duration: 00:02:16.04, start: 0.000000, bitrate: 60270 kb/s
+          Chapter #0:0: start 6.240000, end 34.200000
+          Chapter #0:1: start 34.200000, end 55.400000
+          Chapter #0:2: start 55.400000, end 70.120000
+          Chapter #0:3: start 70.120000, end 97.720000
+          Chapter #0:4: start 97.720000, end 124.200000
+          Chapter #0:5: start 124.200000, end 136.040000
+          Stream #0:0(eng): Video: hevc (Main) (hvc1 / 0x31637668), yuvj420p(pc, bt709), 4096x1344 [SAR 1:1 DAR 64:21], 29996 kb/s, 25 fps, 25 tbr, 90k tbn, 25
+
+        Args:
+            fname (String): Specified filename to target
+        """
+        output = self.runCmd(self.config.ffprobe_cmd, [fname])
+
+        chapters = re.findall(r'.*start (\d+\.\d+), end (\d+\.\d+)', output)
+        chapters[:] = [{ 'start': float(x[0]), 'end': float(x[1]) } for x in chapters]
+        if self.config.verbose == 2:
+            print("GoPro recording date: %s" % chapters)
+        return chapters
+

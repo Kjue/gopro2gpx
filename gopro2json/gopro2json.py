@@ -113,18 +113,43 @@ def Build360Points(data, skip=False):
 def Parse360ToJson(files=[], output=None, binary=False, verbose=None):
     datas = []
     anchors = []
+    sourceFps = 1.0
     for f in files:
         cfg = config.setup_environment(f, outputfile=output)
         parser = gpmf.Parser(cfg)
         datas.extend(parser.readFromMP4())
-        # TODO: [WF-129] Add an offset to the anchors so merged files may be handled.
-        anchors.extend(parser.extractHighlightTimecodes())
         CASN = parser.readCameraSerial()
+        sourceFps = 0 + parser.sourceFps
 
     streams = Build360Points(datas)
     streams['camera'] = CASN
     streams['source'] = cfg.outputfile
     streams['date'] = parser.date
+
+    # Enhance details to the streams:
+    # TODO: Move expansion rate calculations to user responsibility.
+    # Timelapses are now automatically expanded.
+    expansionRate = sourceFps / streams['streams']['FPS']
+    streams['streams']['sourceFPS'] = sourceFps
+    streams['streams']['expansionRate'] = expansionRate
+
+    prevDuration = 0
+    for f in files:
+        cfg = config.setup_environment(f, outputfile=output)
+        parser = gpmf.Parser(cfg)
+        anchors.extend(
+            list(
+                map(
+                    lambda x: {
+                        'start': round(x['start'] * expansionRate + prevDuration, 2),
+                        'end': round(x['end'] * expansionRate + prevDuration, 2)
+                    },
+                    parser.chapters
+                )
+            )
+        )
+        prevDuration = parser.duration * expansionRate
+
     streams['anchors'] = anchors
 
     if len(streams) == 0:

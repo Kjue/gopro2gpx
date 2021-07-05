@@ -43,6 +43,9 @@ class Parser:
         self.outputfile = config.outputfile
 
         self.date = self.ffmtools.getDate(self.file)
+        self.duration = self.ffmtools.getDuration(self.file)
+        self.sourceFps = self.ffmtools.getFps(self.file)
+        self.chapters = self.ffmtools.getChapters(self.file)
 
     def find_boxes(self, f, start_offset=0, end_offset=float("inf")):
         """
@@ -103,6 +106,8 @@ class Parser:
 
 
     def extractHighlightTimecodes(self):
+        # TODO: Consider dropping this code. I can sort of see the use for other things maybe.
+        # Same information is directly available from ffprobe output.
 
         if not os.path.exists(self.file):
             raise FileNotFoundError("Can't open %s" % self.file)
